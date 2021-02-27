@@ -8,7 +8,5 @@ import java.util.List;
 
 @Data @NoArgsConstructor @AllArgsConstructor
 public class ListResponse<T> {
-
     private List<T> items;
-
 }

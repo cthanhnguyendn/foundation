@@ -1,0 +1,14 @@
+version: '3.3'
+services:
+  db:
+    image: mysql:8.0.23
+    restart: always
+    environment:
+      MYSQL_DATABASE: 'quanlyvang'
+      MYSQL_USER: 'user'
+      MYSQL_PASSWORD: '123456'
+      MYSQL_ROOT_PASSWORD: '123456'
+    ports:
+      - '3306:3306'
+    expose:
+      - '3306'
