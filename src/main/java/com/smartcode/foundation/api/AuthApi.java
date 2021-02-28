@@ -3,6 +3,7 @@ package com.smartcode.foundation.api;
 import com.smartcode.foundation.configuration.security.JwtTokenUtil;
 import com.smartcode.foundation.domain.dto.AuthRequest;
 import com.smartcode.foundation.domain.dto.CreateUserRequest;
+import com.smartcode.foundation.domain.dto.LoginCertificateView;
 import com.smartcode.foundation.domain.dto.UserView;
 import com.smartcode.foundation.domain.mapper.UserViewMapper;
 import com.smartcode.foundation.domain.model.User;
@@ -34,24 +35,26 @@ public class AuthApi {
     private final UserService userService;
 
     @PostMapping("login")
-    public ResponseEntity<UserView> login(@RequestBody @Valid AuthRequest request) {
+    public ResponseEntity<LoginCertificateView> login(@RequestBody @Valid AuthRequest request) {
         try {
             Authentication authenticate = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
             User user = (User) authenticate.getPrincipal();
-
+            String token = jwtTokenUtil.generateAccessToken(user);
             return ResponseEntity.ok()
-                    .header(HttpHeaders.AUTHORIZATION, jwtTokenUtil.generateAccessToken(user))
-                    .body(userViewMapper.toUserView(user));
+                    .header(HttpHeaders.AUTHORIZATION, token)
+                    .body(new LoginCertificateView(token, user.getUsername()));
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
     }
 
     @PostMapping("register")
-    public UserView register(@RequestBody @Valid CreateUserRequest request) {
-        return userService.create(request);
+    public LoginCertificateView register(@RequestBody @Valid CreateUserRequest request) {
+        UserView newUser = userService.create(request);
+        String token = jwtTokenUtil.generateAccessToken(newUser.getId(),newUser.getUsername());
+        return new LoginCertificateView(token, newUser.getUsername());
     }
 
 }

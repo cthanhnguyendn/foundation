@@ -29,6 +29,16 @@ public class JwtTokenUtil {
                 .compact();
     }
 
+    public String generateAccessToken(String useId, String usename) {
+        return Jwts.builder()
+                .setSubject(format("%s,%s", useId, usename))
+                .setIssuer(jwtIssuer)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000)) // 1 week
+                .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                .compact();
+    }
+
     public String getUserId(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(jwtSecret)
