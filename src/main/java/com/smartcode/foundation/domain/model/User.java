@@ -27,6 +27,8 @@ public class User implements UserDetails, Serializable {
     private boolean enabled = true;
 
     private String username;
+    @Column(unique = true)
+    private String email;
     private String password;
     private String fullName;
 

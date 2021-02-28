@@ -17,6 +17,8 @@ import javax.validation.ValidationException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static java.lang.String.format;
 
@@ -43,7 +45,12 @@ public class UserService implements UserDetailsService {
 
         User user = userEditMapper.create(request);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-
+        Pattern p = Pattern.compile(".+@.+\\.[a-z]+");
+        Matcher m = p.matcher(request.getUsername());
+        boolean matchFound = m.matches();
+        if (matchFound) {
+            user.setEmail(request.getUsername());
+        }
         user = userRepo.save(user);
 
         return userViewMapper.toUserView(user);
