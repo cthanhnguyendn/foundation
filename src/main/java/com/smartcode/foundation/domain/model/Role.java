@@ -5,10 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.Set;
 
 @Data
@@ -25,11 +22,16 @@ public class Role implements GrantedAuthority {
 
 
     @Id
-    private String authority;
-    @ManyToMany
+    private String role;
+    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     Set<User> users;
 
-    public Role(String authority) {
-        this.authority = authority;
+    public Role(String role) {
+        this.role = role;
+    }
+
+    @Override
+    public String getAuthority() {
+        return this.role;
     }
 }

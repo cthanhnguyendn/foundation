@@ -3,12 +3,15 @@ package com.smartcode.foundation.domain.model;
 import lombok.Data;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "user")
@@ -32,8 +35,13 @@ public class User implements UserDetails, Serializable {
     private String password;
     private String fullName;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Role> authorities;
+    @ManyToMany
+    @JoinTable(name = "users_roles",
+            joinColumns = {
+                    @JoinColumn(name = "user_id", referencedColumnName = "id")},
+            inverseJoinColumns = {
+                    @JoinColumn(name = "role_id", referencedColumnName = "role")})
+    private Set<Role> roles;
 
     public User() {
     }
@@ -42,6 +50,11 @@ public class User implements UserDetails, Serializable {
         this.username = username;
         this.password = password;
         this.enabled = true;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return getRoles();
     }
 
     @Override

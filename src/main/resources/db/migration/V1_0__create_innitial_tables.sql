@@ -31,7 +31,7 @@ create table book
 
 create table role
 (
-    authority varchar(255) not null
+    role varchar(255) not null
         primary key
 );
 
@@ -40,32 +40,24 @@ create table user
     id          bigint auto_increment
         primary key,
     created_at  datetime(6)  null,
+    email       varchar(255) null,
     enabled     bit          not null,
     full_name   varchar(255) null,
     modified_at datetime(6)  null,
     password    varchar(255) null,
     username    varchar(255) null,
-    email varchar(255) null unique
+    constraint UK_ob8kqyqqgmefl0aco34akdtpe
+        unique (email)
 );
 
-create table role_users
+create table users_roles
 (
-    role_authority varchar(255) not null,
-    users_id       bigint       not null,
-    primary key (role_authority, users_id),
-    constraint FKafxikhmb9s897d7rqamkb3vtv
-        foreign key (role_authority) references role (authority),
-    constraint FKipeyaf3dve9njdrl1t23ndidv
-        foreign key (users_id) references user (id)
-);
-
-create table user_authorities
-(
-    user_id               bigint       not null,
-    authorities_authority varchar(255) not null,
-    constraint FK3yqhiip97xf8rrlk3g57m1yl
-        foreign key (authorities_authority) references role (authority),
-    constraint FKmj13d0mnuj4cd8b6htotbf9mm
-        foreign key (user_id) references user (id)
+    user_id bigint       not null,
+    role_id varchar(255) not null,
+    primary key (user_id, role_id),
+    constraint FKgd3iendaoyh04b95ykqise6qh
+        foreign key (user_id) references user (id),
+    constraint FKt4v0rrweyk393bdgt107vdx0x
+        foreign key (role_id) references role (role)
 );
 
