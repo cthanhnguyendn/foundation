@@ -1,5 +1,6 @@
 package com.smartcode.foundation.configuration.security;
 
+import com.smartcode.foundation.domain.dto.UserDetailView;
 import com.smartcode.foundation.domain.model.User;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
+import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -29,13 +31,14 @@ public class JwtTokenUtil {
                 .compact();
     }
 
-    public String generateAccessToken(String useId, String usename) {
+    public String generateAccessToken(String useId, String usename, Set<String> roles) {
         return Jwts.builder()
                 .setSubject(format("%s,%s", useId, usename))
                 .setIssuer(jwtIssuer)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000)) // 1 week
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
+                
                 .compact();
     }
 
@@ -46,6 +49,14 @@ public class JwtTokenUtil {
                 .getBody();
 
         return claims.getSubject().split(",")[0];
+    }
+
+    public UserDetailView getFromToken(String token){
+        Claims claims = Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .parseClaimsJws(token)
+                .getBody();
+        return  new UserDetailView(this.getUserId(token), this.getUsername(token));
     }
 
     public String getUsername(String token) {

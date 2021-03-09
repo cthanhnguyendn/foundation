@@ -1,5 +1,6 @@
 package com.smartcode.foundation.configuration.security;
 
+import com.smartcode.foundation.domain.dto.UserDetailView;
 import com.smartcode.foundation.repository.UserRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -46,9 +47,7 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         }
 
         // Get user identity and set it on the spring security context
-        UserDetails userDetails = userRepo
-                .findByUsername(jwtTokenUtil.getUsername(token))
-                .orElse(null);
+        UserDetailView userDetails = jwtTokenUtil.getFromToken(token);
 
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 userDetails, null,

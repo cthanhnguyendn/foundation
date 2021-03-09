@@ -9,7 +9,6 @@ import javax.persistence.*;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "role")
@@ -23,8 +22,7 @@ public class Role implements GrantedAuthority {
 
     @Id
     private String role;
-    @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
-    Set<User> users;
+
 
     public Role(String role) {
         this.role = role;

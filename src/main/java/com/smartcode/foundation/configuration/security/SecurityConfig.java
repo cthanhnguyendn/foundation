@@ -1,6 +1,10 @@
 package com.smartcode.foundation.configuration.security;
 
+
+import com.smartcode.foundation.domain.model.User;
 import com.smartcode.foundation.repository.UserRepo;
+import com.smartcode.foundation.service.UserDetailService;
+import com.smartcode.foundation.service.UserService;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -12,7 +16,10 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,6 +29,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
 
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.Collection;
 
 import static java.lang.String.format;
 
@@ -34,7 +43,7 @@ import static java.lang.String.format;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final Logger logger;
-    private final UserRepo userRepo;
+    private final UserDetailService userDetailService;
     private final JwtTokenFilter jwtTokenFilter;
 
     @Value("${springdoc.api-docs.path}")
@@ -43,12 +52,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private String swaggerPath;
 
     public SecurityConfig(Logger logger,
-                          UserRepo userRepo,
+                          UserDetailService userDetailService,
                           JwtTokenFilter jwtTokenFilter) {
         super();
 
         this.logger = logger;
-        this.userRepo = userRepo;
+        this.userDetailService = userDetailService;
         this.jwtTokenFilter = jwtTokenFilter;
 
         // Inherit security context in async function calls
@@ -57,13 +66,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.userDetailsService(username -> userRepo
-                .findByUsername(username)
-                .orElseThrow(
-                        () -> new UsernameNotFoundException(
-                                format("User: %s, not found", username)
-                        )
-                ));
+        auth.userDetailsService(this.userDetailService);
     }
 
     // Set password encoding schema
@@ -121,8 +124,14 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         config.setAllowCredentials(true);
         config.addAllowedOrigin("http://localhost:3000");
         config.addAllowedOrigin("https://localhost:3000");
-        config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        config.addAllowedHeader("authorization");
+        config.addAllowedHeader("content-type");
+        config.addAllowedMethod("HEAD");
+        config.addAllowedMethod("GET");
+        config.addAllowedMethod("POST");
+        config.addAllowedMethod("PUT");
+        config.addAllowedMethod("DELETE");
+        config.addAllowedMethod("PATCH");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

@@ -35,7 +35,7 @@ public class User implements UserDetails, Serializable {
     private String password;
     private String fullName;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "users_roles",
             joinColumns = {
                     @JoinColumn(name = "user_id", referencedColumnName = "id")},

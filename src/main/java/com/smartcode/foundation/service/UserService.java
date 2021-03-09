@@ -111,4 +111,8 @@ public class UserService implements UserDetailsService {
         return userViewMapper.toUserView(users);
     }
 
+    public UserView findByUsername(String username) {
+        User user = userRepo.findByUsername(username).orElseThrow();
+        return userViewMapper.toUserView(user);
+    }
 }
