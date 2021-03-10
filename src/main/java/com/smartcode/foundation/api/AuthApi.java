@@ -39,7 +39,7 @@ public class AuthApi {
             UserDetailView user = (UserDetailView) authenticate.getPrincipal();
 
             return ResponseEntity.ok()
-                    .body(new LoginCertificateView( jwtTokenUtil.generateAccessToken(user.getId(), user.getUsername()),user.getUsername()));
+                    .body(new LoginCertificateView(jwtTokenUtil.generateAccessToken(user.getId(), user.getUsername(),user.getRoles()),user.getUsername()));
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }

@@ -27,9 +27,10 @@ public class UserDetailView implements UserDetails {
     private String password;
     private Set<String> roles;
 
-    public UserDetailView(String userId, String username) {
+    public UserDetailView(String userId, String username, Set<String> roles) {
         this.username = username;
         this.id = userId;
+        this.roles = roles;
     }
 
 

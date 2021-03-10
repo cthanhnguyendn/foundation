@@ -4,7 +4,7 @@ services:
     image: mysql:8.0.23
     restart: always
     environment:
-      MYSQL_DATABASE: 'quanlyvang'
+      MYSQL_DATABASE: 'env'
       MYSQL_USER: 'user'
       MYSQL_PASSWORD: '123456'
       MYSQL_ROOT_PASSWORD: '123456'

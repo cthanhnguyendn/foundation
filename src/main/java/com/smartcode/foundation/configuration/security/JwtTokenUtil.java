@@ -7,8 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
-import java.util.Set;
+import java.util.*;
 
 import static java.lang.String.format;
 
@@ -38,7 +37,9 @@ public class JwtTokenUtil {
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 7 * 24 * 60 * 60 * 1000)) // 1 week
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
-                
+                .claim("userId",useId)
+                .claim("username",usename)
+                .claim("roles",roles)
                 .compact();
     }
 
@@ -48,6 +49,7 @@ public class JwtTokenUtil {
                 .parseClaimsJws(token)
                 .getBody();
 
+
         return claims.getSubject().split(",")[0];
     }
 
@@ -56,7 +58,10 @@ public class JwtTokenUtil {
                 .setSigningKey(jwtSecret)
                 .parseClaimsJws(token)
                 .getBody();
-        return  new UserDetailView(this.getUserId(token), this.getUsername(token));
+        List<String> roles = claims.get("roles", ArrayList.class);
+        return  new UserDetailView(
+                claims.get("userId", String.class),
+                this.getUsername(token),new HashSet<>(roles));
     }
 
     public String getUsername(String token) {
@@ -66,15 +71,6 @@ public class JwtTokenUtil {
                 .getBody();
 
         return claims.getSubject().split(",")[1];
-    }
-
-    public Date getExpirationDate(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(jwtSecret)
-                .parseClaimsJws(token)
-                .getBody();
-
-        return claims.getExpiration();
     }
 
     public boolean validate(String token) {
